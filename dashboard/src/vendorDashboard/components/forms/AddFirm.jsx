@@ -1,90 +1,180 @@
-import React, { useState } from 'react';
+
+import React, {useState} from 'react'
 import { API_URL } from '../../data/apiPath';
+import { ThreeCircles } from 'react-loader-spinner';
+
 
 const AddFirm = () => {
-  const [firmname, setFirmName] = useState("");
+  const [firmName, setFirmName] = useState("");
   const [area, setArea] = useState("");
-  const [Category, setCategory] = useState([]);
+  const [category, setCategory] = useState([]);
   const [region, setRegion] = useState([]);
   const [offer, setOffer] = useState("");
   const [file, setFile] = useState(null);
+  const [loading, setLoading] = useState(false); 
 
-  const handleFirmSubmit = async (e) => {
-    e.preventDefault();
 
-    try {
-      const loginToken = localStorage.getItem("loginToken");
-      const existingFirmId = localStorage.getItem("firmId");
+  const handleCategoryChange = (event)=>{
+      const value = event.target.value;
+        if(category.includes(value)){
+          setCategory(category.filter((item)=> item !== value));
+        }else{
+          setCategory([...category, value])
+        }
+  }
+  const handleRegionChange = (event)=>{
+      const value = event.target.value;
+        if(region.includes(value)){
+          setRegion(region.filter((item)=> item !== value));
+        }else{
+          setRegion([...region, value])
+        }
+  }
+ 
+  const handleImageUpload =(event)=>{
+      const selectedImage = event.target.files[0];
+      setFile(selectedImage)
+  }
 
-      // 🔥 IF NOT LOGGED IN
-      if (!loginToken) {
-        alert("User not authenticated");
-        return;
-      }
-      // 🔥 ELSE IF FIRM ALREADY EXISTS (YOUR REQUIREMENT)
-      else if (existingFirmId) {
-        alert("Firm already exists. You can add only one firm.");
-        return;
-      }
+  const handleFirmSubmit= async(e)=>{
+        e.preventDefault();
+    setLoading(true); 
 
-      const formData = new FormData();
-      formData.append("firmName", firmname);
-      formData.append("area", area);
-      formData.append("offer", offer);
-      formData.append("image", file);
+   try {
+        const loginToken = localStorage.getItem('loginToken');
+        if(!loginToken){
+            console.error("User not authenticated");
+        }
 
-      Category.forEach((v) => formData.append("category", v));
-      region.forEach((v) => formData.append("region", v));
+        const formData = new FormData();
+          formData.append('firmName', firmName);
+          formData.append('area', area);
+          formData.append('offer', offer);
+          formData.append('image', file)
 
-      const response = await fetch(`${API_URL}/firm/add-firm`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${loginToken}`,
-        },
-        body: formData,
-      });
+          category.forEach((value)=>{
+            formData.append('category', value)
+          });
+          region.forEach((value)=>{
+            formData.append('region', value)
+          })
 
-      const data = await response.json();
+          const response = await fetch(`${API_URL}/firm/add-firm`,{
+            method:'POST',
+            headers:{
+              'token': `${loginToken}`
+            },
+            body: formData
+          });
+          const data = await response.json()
+          if(response.ok){
+            console.log(data);
+            setFirmName("");
+            setArea("")
+            setCategory([]);
+            setRegion([]);
+            setOffer("");
+            setFile(null)
+            alert("Firm added Successfully")
+          }else if(data.message === "vendor can have only one firm"){
+              alert("Firm Exists 🥗. Only 1 firm can be added  ")
+          } else{
+              alert('Failed to add Firm')
+          }
 
-      if (response.ok) {
-        localStorage.setItem("firmId", data.firmId);
-        alert("Firm added successfully");
+               const mango = data.firmId;
+          const vendorRestuarant = data.vendorFirmName
 
-        setFirmName("");
-        setArea("");
-        setCategory([]);
-        setRegion([]);
-        setOffer("");
-        setFile(null);
-      } else {
-        alert(data.message || "Failed to add firm");
-      }
-    } catch (error) {
-      console.error("failed to add firm", error);
-    }
-  };
+          localStorage.setItem('firmId', mango);
+          localStorage.setItem('firmName', vendorRestuarant)
+          window.location.reload()
+
+   } catch (error) {
+      console.error("failed to add Firm")
+      alert("failed to add Firm")
+   } finally {
+    setLoading(false); 
+  }  
+  }
+
 
   return (
-    <div className="firmSection">
-      <form className="tableForm" onSubmit={handleFirmSubmit}>
-        <h3>Add Firm</h3>
+        <div className="firmSection">
+   {loading &&        <div className="loaderSection">
+        <ThreeCircles
+          visible={loading}
+          height={100}
+          width={100}
+          color="#4fa94d"
+          ariaLabel="three-circles-loading"
+          wrapperStyle={{}}
+          wrapperClass=""
+        />
+      </div>}
+         {!loading &&   <form className="tableForm" onSubmit={handleFirmSubmit}>
+            <h3>Add Firm</h3>
+                <label >Firm Name</label>
+                <input type="text" name='firmName' value={firmName} onChange={(e)=>setFirmName(e.target.value)}/>
+                <label >Area</label>
+                <input type="text"  name='area' value={area} onChange={(e)=>setArea(e.target.value)} />
+                {/* <label >Category</label>
+                <input type="text"  /> */}
+    <div className="checkInp">
+      <label >Category</label>
+          <div className="inputsContainer">
+          <div className="checboxContainer">
+                  <label>Veg</label>
+                  <input type="checkbox" checked ={category.includes('veg')}  value="veg" onChange={handleCategoryChange}/>
+                </div>
+                <div className="checboxContainer">
+                  <label>Non-Veg</label>
+                  <input type="checkbox" checked ={category.includes('non-veg')} value="non-veg" onChange={handleCategoryChange}/>
+                </div>
+          </div>
 
-        <label>Firm Name</label>
-        <input value={firmname} onChange={(e) => setFirmName(e.target.value)} />
-
-        <label>Area</label>
-        <input value={area} onChange={(e) => setArea(e.target.value)} />
-
-        <label>Offer</label>
-        <input value={offer} onChange={(e) => setOffer(e.target.value)} />
-
-        <label>Firm Image</label>
-        <input type="file" onChange={(e) => setFile(e.target.files[0])} />
-
-        <button type="submit">Submit</button>
-      </form>
     </div>
-  );
-};
+    <label >Offer</label>
+                <input type="text" name='offer' value={offer} onChange={(e)=>setOffer(e.target.value)}/>
+    <div className="checkInp">
+      <label >Region</label>
+          <div className="inputsContainer">
+          <div className="regBoxContainer">
+                  <label>South Indian</label>
+                  <input type="checkbox" value="south-indian"   checked ={region.includes('south-indian')}
+                  onChange={handleRegionChange}
+                  />
+                </div>
+                <div className="regBoxContainer">
+                  <label>North-Indian</label>
+                  <input type="checkbox" value="north-indian"  checked ={region.includes('north-indian')}
+                  onChange={handleRegionChange}
+                  />
+                </div>
+                <div className="regBoxContainer">
+                  <label>Chinese</label>
+                  <input type="checkbox" value="chinese" checked ={region.includes('chinese')}
+                  onChange={handleRegionChange}
+                  />
+                </div>
+                <div className="regBoxContainer">
+                  <label>Bakery</label>
+                  <input type="checkbox" value="bakery" checked ={region.includes('bakery')}
+                  onChange={handleRegionChange}
+                  />
+                </div>
+          </div>
 
-export default AddFirm;
+    </div>
+               
+                <label >Firm Image</label>
+                <input type="file" onChange={handleImageUpload} />
+                <br />
+            <div className="btnSubmit">
+        <button type='submit'>Submit</button>
+    </div>
+           </form>}
+        </div>
+  )
+}
+
+export default AddFirm

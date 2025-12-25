@@ -18,6 +18,13 @@ body{
     padding: 0 20px;
     font-size: large;
 }
+.userAuth {
+    cursor: pointer;
+}
+
+.logout {
+    cursor: pointer;
+}
 .sideBarSection{
     width: 100%;
     max-width: 15%;
@@ -158,21 +165,36 @@ border-radius: 10px;
 }
 /*product table */
 
-.product-table{ 
-    margin-top: 50px;
+.productSection {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.product-table {
     width: 80vw;
     border-collapse: collapse;
-    margin-top: 50px;
-    
 }
+
 .product-table th,
-.product-table td{
-    border: 1px solid gray;
+.product-table td {
+    border: 1px solid rgb(128, 128, 128);
     padding: 8px;
 }
-.product-table th{
+
+.product-table th {
     text-align: left;
-    background-color: gray;
+    background-color: rgb(47, 77, 212);
+    color: white;
+}
+
+.deleteBtn {
+    color: red;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
 }
 /*  not found  */
 .errorSection{
@@ -198,4 +220,31 @@ h3{
     padding: 10px 0;
     margin-bottom: 20px;
     border-radius: 5px;
+}
+.landingImage {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: -100px;
+}
+
+.welcomeSection h2 {
+    font-size: 3rem;
+    text-align: center;
+    position: relative;
+    top: -80px;
+    color: #2073c0;
+}
+
+.showPassword {
+    width: fit-content;
+    position: absolute;
+    bottom: 280px;
+    right: 480px;
+    cursor: pointer;    
+}
+
+.loaderSection {
+    z-index: 10000;
 }

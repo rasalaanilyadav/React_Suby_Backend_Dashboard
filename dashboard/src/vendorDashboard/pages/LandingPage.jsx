@@ -8,7 +8,7 @@ import AddProduct from '../components/forms/AddProduct'
 import Welcome from '../components/Welcome'
 import AllProducts from '../components/AllProducts'
 
-     
+
 const LandingPage = () => {
   const [showLogin, setShowLogin] = useState(false)
   const [showRegister, setShowRegister] = useState(false)
@@ -30,7 +30,7 @@ const LandingPage = () => {
   useEffect(()=>{
       const firmName = localStorage.getItem('firmName');
       const firmId = localStorage.getItem('firmId')
-      if(firmName){
+      if(firmName || firmId ){
           setShowFirmTitle(false)
           setShowWelcome(true)
       }
@@ -134,8 +134,9 @@ const showAllProductsHandler = ()=>{
           {showProduct && showLogOut && <AddProduct />}
           {showWelcome && <Welcome />}
           {showAllProducts && showLogOut && <AllProducts />}
-          {showLogin && <Login showWelcomeHandler ={showWelcomeHandler}/>} 
+          {showLogin && <Login showWelcomeHandler ={showWelcomeHandler}/>}
           {showRegister && <Register showLoginHandler = {showLoginHandler}/>}
+        
             </div>
         </section>
     </>
